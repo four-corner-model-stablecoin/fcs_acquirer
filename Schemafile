@@ -1,0 +1,8 @@
+create_table 'merchants', comment: '加盟店' do |t|
+  t.string :merchant_name, null: false, comment: '加盟店名'
+
+  t.timestamps null: false
+
+  t.index :merchant_name, unique: true
+end
+
