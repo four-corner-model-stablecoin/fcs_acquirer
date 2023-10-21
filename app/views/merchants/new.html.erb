@@ -1,0 +1,14 @@
+<h2>
+Sign up
+</h2>
+
+
+
+<%= form_with scope: :merchant, url: signup_path, local: false, id: "signup", data: { controller: "signup", action: "ajax:success->signup#create" } do |form| %>
+  <div>
+    <%= form.text_field :merchant_name, placeholder: "Merchant Name", required: true %>
+
+  </div>
+  
+    <%= form.submit "Sign up"  %>
+<% end %>

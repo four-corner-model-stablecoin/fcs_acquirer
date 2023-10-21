@@ -1,0 +1,6 @@
+<h1>
+  home
+</h1>
+<h1> <%= current_merchant&.merchant_name %> </h1>
+<%= link_to 'Login', login_path %>
+<%= button_to 'Log out', logout_path, method: :delete %>

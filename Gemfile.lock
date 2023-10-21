@@ -142,6 +142,8 @@ GEM
     nio4r (2.5.9)
     nokogiri (1.15.4-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.15.4-x86_64-darwin)
+      racc (~> 1.4)
     parallel (1.23.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
@@ -247,6 +249,7 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     sqlite3 (1.6.7-arm64-darwin)
+    sqlite3 (1.6.7-x86_64-darwin)
     tapyrus (0.3.4)
       activesupport (>= 5.2.3)
       daemon-spawn
@@ -289,6 +292,8 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  arm64-darwin-22
+  x86_64-darwin-21
 
 DEPENDENCIES
   bootsnap (>= 1.4.4)
