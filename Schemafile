@@ -7,3 +7,109 @@ create_table 'merchants', comment: '加盟店' do |t|
 
   t.index :merchant_name, unique: true
 end
+
+create_table 'dids', comment: 'DID' do |t|
+  t.references :merchant, null: true, foreign_key: { to_table: :merchants }
+  t.string 'short_form', null: false
+  t.index :short_form, unique: true
+end
+
+create_table 'keys', comment: 'merchantの秘密鍵' do |t|
+  t.references :did, null: true, foreign_key: { to_table: :dids }
+  t.string 'private_key', null: true
+end
+
+create_table 'contracts', comment: '契約' do |t|
+  t.references :brand_did, null: false
+  t.references :acquirer_did, null: false
+  t.datetime 'contracted_at', null: false, comment: '契約締結日'
+  t.datetime 'effect_at', null: false, comment: '効力発生日'
+  t.datetime 'expire_at', null: false, comment: '失効日'
+end
+add_foreign_key :contracts, :dids, column: :brand_did_id
+add_foreign_key :contracts, :dids, column: :acquirer_did_id
+
+create_table 'wallets', comment: 'ウォレット' do |t|
+  t.references :merchant, null: true, foreign_key: { to_table: :merchants }
+  t.decimal :balance, precision: 18, scale: 2, null: false, comment: '残高', default: 0.0
+
+  t.timestamps null: false
+
+  t.index :glueby_wallet_id, unique: true
+end
+
+create_table 'accounts', comment: '口座' do |t|
+  t.references :merchant, null: false, foreign_key: { to_table: :merchants }
+  t.decimal :balance, precision: 18, scale: 2, null: false, comment: '残高', default: 0.0
+  t.string :account_number, null: false, comment: '口座番号'
+  t.string :branch_code, null: false, comment: '支店コード'
+  t.string :branch_name, null: false, comment: '支店名'
+
+  t.timestamps null: false
+
+  t.index :account_number, unique: true
+end
+
+create_table 'glueby_keys', force: :cascade do |t|
+  t.string 'private_key'
+  t.string 'public_key'
+  t.string 'script_pubkey'
+  t.string 'label'
+  t.integer 'purpose'
+  t.integer 'wallet_id'
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['label'], name: 'index_glueby_keys_on_label'
+  t.index ['private_key'], name: 'index_glueby_keys_on_private_key', unique: true
+  t.index ['script_pubkey'], name: 'index_glueby_keys_on_script_pubkey', unique: true
+  t.index ['wallet_id'], name: 'index_glueby_keys_on_wallet_id'
+end
+
+create_table 'glueby_reissuable_tokens', force: :cascade do |t|
+  t.string 'color_id', null: false
+  t.string 'script_pubkey', null: false
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['color_id'], name: 'index_glueby_reissuable_tokens_on_color_id', unique: true
+end
+
+create_table 'glueby_system_informations', force: :cascade do |t|
+  t.string 'info_key'
+  t.string 'info_value'
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['info_key'], name: 'index_glueby_system_informations_on_info_key', unique: true
+end
+
+create_table 'glueby_token_metadata', force: :cascade do |t|
+  t.text 'metadata', null: false
+  t.string 'color_id', null: false
+  t.string 'p2c_address', null: false
+  t.string 'payment_base', null: false
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['color_id'], name: 'index_glueby_token_metadata_on_color_id', unique: true
+end
+
+create_table 'glueby_utxos', force: :cascade do |t|
+  t.string 'txid'
+  t.integer 'index'
+  t.bigint 'value'
+  t.string 'script_pubkey'
+  t.string 'label'
+  t.integer 'status'
+  t.datetime 'locked_at'
+  t.integer 'key_id'
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['key_id'], name: 'index_glueby_utxos_on_key_id'
+  t.index ['label'], name: 'index_glueby_utxos_on_label'
+  t.index %w[txid index], name: 'index_glueby_utxos_on_txid_and_index', unique: true
+end
+
+create_table 'glueby_wallets', force: :cascade do |t|
+  t.string 'wallet_id'
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+  t.index ['wallet_id'], name: 'index_glueby_wallets_on_wallet_id', unique: true
+end
