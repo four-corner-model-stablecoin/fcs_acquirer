@@ -26,6 +26,7 @@ class ContractsController < ApplicationController
 
     brand_did = Did.find_or_create_by(short_form: brand_did_short_form)
     contract_with_brand = Contract.create(acquirer_did:, brand_did:, contracted_at:, effect_at:, expire_at:)
+
     redirect_to root_path
   end
 end

@@ -6,7 +6,7 @@ class WithdrawsController < ApplicationController
     merchant_did = params[:merchant_did]
     merchant = Did.find_by(short_form: merchant_did).merchant
 
-    WithdrawalRequest.create(request_id: params[:request_id], merchant:)
+    WithdrawalRequest.create!(request_id: params[:request_id], merchant:, status: :created)
 
     tx = Tapyrus::Tx.parse_from_payload(tx_hex.htb)
 
@@ -33,7 +33,7 @@ class WithdrawsController < ApplicationController
 
   def confirm
     request_id = params[:request_id]
-    request = WithdrawalRequest.find_by(request_id:)
+    request = WithdrawalRequest.find_by!(request_id:)
 
     tx_hex = params[:tx]
     lock_script_hex = params[:lock_script]
@@ -42,24 +42,23 @@ class WithdrawsController < ApplicationController
     tx = Tapyrus::Tx.parse_from_payload(tx_hex.htb)
 
     # add sig for token
-    acquirer_key = Tapyrus::Key.new(priv_key: Did.first.key.private_key, key_type: 0)
+    acquirer_key = Did.first.key.to_tapyrus_key
     sig_hash = tx.sighash_for_input(0, lock_script)
     sig = acquirer_key.sign(sig_hash) + [Tapyrus::SIGHASH_TYPE[:all]].pack("C")
     tx.in[0].script_sig << sig
 
     merchant_to_brand_txid = Glueby::Internal::RPC.client.sendrawtransaction(tx.to_payload.bth)
-    generate_block
 
-    request.update!(merchant_to_brand_txid: )
-
-    # TODO: Transaction系の設計よく分からんのでパス
+    request.update!(merchant_to_brand_txid:, status: :transfering)
 
     # MEMO: 本来は非同期に実行、デモではgenerate_blockを用いて同期実行
     # if ENV['DEMO'] = 1
+    generate_block
+
     json = {
       request_id:,
       merchant_to_brand_txid:,
-      acquirer_did: request.merchant.did.short_form,
+      acquirer_did: Did.first.short_form,
     }.to_json
     response = Net::HTTP.post(
       URI('http://localhost:3001/withdraw/create'),
@@ -71,7 +70,37 @@ class WithdrawsController < ApplicationController
     brand_to_issuer_txid = body['brand_to_issuer_txid']
     burn_txid = body['burn_txid']
 
-    request.update!(brand_to_issuer_txid:, burn_txid:)
+    amount = tx.outputs.first.value
+
+    merchant = request.merchant
+    wallet = merchant.wallet
+    wallet.update!(balance: wallet.balance - amount)
+    wallet_transaction = WalletTransaction.create(
+      wallet:,
+      amount:,
+      transaction_type: :deposit,
+      transaction_time: Time.current
+    )
+
+    account = merchant.account
+    account.update!(balance: account.balance + amount)
+    account_transaction = AccountTransaction.create(
+      account:,
+      amount: -amount,
+      transaction_type: :transfer,
+      transaction_time: Time.current
+    )
+
+    withdrawal_transaction = WithdrawalTransaction.create(
+      wallet_transaction:,
+      account_transaction:,
+      merchant_to_brand_txid:,
+      brand_to_issuer_txid:,
+      burn_txid:,
+      transaction_time: DateTime.current
+    )
+
+    request.update!(withdrawal_transaction:, status: :completed)
 
     render json: { merchant_to_brand_txid:, brand_to_issuer_txid:, burn_txid: }
   end
