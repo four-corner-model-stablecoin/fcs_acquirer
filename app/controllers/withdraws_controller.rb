@@ -32,7 +32,8 @@ class WithdrawsController < ApplicationController
   end
 
   def confirm
-    request = WithdrawalRequest.find_by(request_id: params[:request_id])
+    request_id = params[:request_id]
+    request = WithdrawalRequest.find_by(request_id:)
 
     tx_hex = params[:tx]
     lock_script_hex = params[:lock_script]
@@ -46,13 +47,32 @@ class WithdrawsController < ApplicationController
     sig = acquirer_key.sign(sig_hash) + [Tapyrus::SIGHASH_TYPE[:all]].pack("C")
     tx.in[0].script_sig << sig
 
-    txid = Glueby::Internal::RPC.client.sendrawtransaction(tx.to_payload.bth)
+    merchant_to_brand_txid = Glueby::Internal::RPC.client.sendrawtransaction(tx.to_payload.bth)
     generate_block
 
-    request.update!(merchant_to_brand_txid: txid)
+    request.update!(merchant_to_brand_txid: )
 
     # TODO: Transaction系の設計よく分からんのでパス
 
-    render json: { txid: }
+    # MEMO: 本来は非同期に実行、デモではgenerate_blockを用いて同期実行
+    # if ENV['DEMO'] = 1
+    json = {
+      request_id:,
+      merchant_to_brand_txid:,
+      acquirer_did: request.merchant.did.short_form,
+    }.to_json
+    response = Net::HTTP.post(
+      URI('http://localhost:3001/withdraw/create'),
+      json,
+      'Content-Type' => 'application/json'
+    )
+    body = JSON.parse(response.body)
+
+    brand_to_issuer_txid = body['brand_to_issuer_txid']
+    burn_txid = body['burn_txid']
+
+    request.update!(brand_to_issuer_txid:, burn_txid:)
+
+    render json: { merchant_to_brand_txid:, brand_to_issuer_txid:, burn_txid: }
   end
 end

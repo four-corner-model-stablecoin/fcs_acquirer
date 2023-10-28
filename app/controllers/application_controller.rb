@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_merchant, :signed_in?
+  helper_method :current_merchant, :signed_in?, :generate_block
   protect_from_forgery
 
   private
