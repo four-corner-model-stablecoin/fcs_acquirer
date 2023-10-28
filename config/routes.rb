@@ -12,4 +12,7 @@ Rails.application.routes.draw do
   resource :account, only: %i[show new create]
   resources :contracts, only: %i[new create]
   resources :stable_coins, only: %i[new create]
+
+  post 'withdraw/create', to: 'withdraws#create'
+  post 'withdraw/confirm', to: 'withdraws#confirm'
 end
