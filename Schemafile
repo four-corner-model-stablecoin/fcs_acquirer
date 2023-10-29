@@ -6,6 +6,13 @@ create_table 'dids', comment: 'DID' do |t|
   t.timestamps null: false
 end
 
+create_table 'vcs', comment: 'Verifiable Credentials' do |t|
+  t.references :merchant, null: false, foreign_key: { to_table: :merchants }
+  t.string :jwt, null: false, index: { unique: true }, comment: 'VC JWT'
+
+  t.timestamps null: false
+end
+
 create_table 'keys', comment: '鍵' do |t|
   t.references :did, null: true, foreign_key: { to_table: :dids }
   t.string :jwk, null: false, comment: '{ ..jwk }.to_json'

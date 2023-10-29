@@ -5,5 +5,6 @@ class Merchant < ApplicationRecord
 
   has_one :account
   has_one :wallet
+  has_one :vc
   belongs_to :did
 end
