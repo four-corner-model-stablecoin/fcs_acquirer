@@ -12,9 +12,9 @@ class ContractsController < ApplicationController
       did: acquirer_did.short_form,
     }.to_json
     response = Net::HTTP.post(
-    URI('http://localhost:3001/contracts/agreement/acquirer'),
-    json,
-    'Content-Type' => 'application/json'
+      URI("#{ENV['BRAND_URL']}/contracts/agreement/acquirer"),
+      json,
+      'Content-Type' => 'application/json'
     )
     body = JSON.parse(response.body)
 

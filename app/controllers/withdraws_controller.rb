@@ -61,7 +61,7 @@ class WithdrawsController < ApplicationController
       acquirer_did: Did.first.short_form,
     }.to_json
     response = Net::HTTP.post(
-      URI('http://localhost:3001/withdraw/create'),
+      URI("#{ENV['BRAND_URL']}/withdraw/create"),
       json,
       'Content-Type' => 'application/json'
     )
