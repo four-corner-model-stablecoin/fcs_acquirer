@@ -8,10 +8,10 @@ Rails.application.routes.draw do
   delete 'logout', to: 'sessions#destroy'
 
   resource :merchant, only: %i[show]
-  resource :wallet, only: %i[show new create]
-  resource :account, only: %i[show new create]
   resources :contracts, only: %i[new create]
-  resources :stable_coins, only: %i[new create]
+  resources :account_transactions, only: %i[index]
+  resources :wallet_transactions, only: %i[index]
+  resources :withdrawal_transactions, only: %i[index]
 
   post 'withdraw/create', to: 'withdraws#create'
   post 'withdraw/confirm', to: 'withdraws#confirm'
