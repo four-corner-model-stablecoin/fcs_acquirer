@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class Key < ApplicationRecord
+  validates :jwk, presence: true
+
   belongs_to :did, optional: true
 
   def to_tapyrus_key
-    return nil if jwk.nil?
-
     key = JSON::JWK.new(JSON.parse(jwk)).to_key
 
     if key.private_key.nil?
