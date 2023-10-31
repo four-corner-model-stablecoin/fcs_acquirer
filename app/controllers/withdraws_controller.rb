@@ -81,7 +81,7 @@ class WithdrawsController < ApplicationController
     wallet_transaction = WalletTransaction.create(
       wallet:,
       amount:,
-      transaction_type: :withdraw,
+      transaction_type: :withdrawal,
       transaction_time: Time.current
     )
 
