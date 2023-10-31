@@ -93,6 +93,7 @@ create_table 'withdrawal_requests', comment: '償還依頼' do |t|
   t.references :merchant, null: true, foreign_key: { to_table: :merchants }
   t.string :request_id, null: false, index: true
   t.integer :status, null: false, default: 0, comment: '0: 未完了, 1: 完了, 9: 失敗'
+  t.integer :amount, null: false, comment: '金額'
   t.string :merchant_to_brand_txid, null: true
 
   t.timestamps null: false

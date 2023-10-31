@@ -5,8 +5,9 @@ class WithdrawsController < ApplicationController
     tx_hex = params[:tx]
     merchant_did = params[:merchant_did]
     merchant = Did.find_by(short_form: merchant_did).merchant
+    amount = params[:amount]
 
-    WithdrawalRequest.create!(request_id: params[:request_id], merchant:, status: :created)
+    WithdrawalRequest.create!(request_id: params[:request_id], merchant:, amount:, status: :created)
 
     tx = Tapyrus::Tx.parse_from_payload(tx_hex.htb)
 
@@ -34,6 +35,7 @@ class WithdrawsController < ApplicationController
   def confirm
     request_id = params[:request_id]
     request = WithdrawalRequest.find_by!(request_id:)
+    amount = request.amount
 
     tx_hex = params[:tx]
     lock_script_hex = params[:lock_script]
@@ -57,6 +59,7 @@ class WithdrawsController < ApplicationController
 
     json = {
       request_id:,
+      amount:,
       merchant_to_brand_txid:,
       acquirer_did: Did.first.short_form,
     }.to_json
@@ -70,7 +73,7 @@ class WithdrawsController < ApplicationController
     brand_to_issuer_txid = body['brand_to_issuer_txid']
     burn_txid = body['burn_txid']
 
-    amount = tx.outputs.first.value
+    amount = request.amount
 
     merchant = request.merchant
     wallet = merchant.wallet
