@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# 加盟店モデル
 class Merchant < ApplicationRecord
   validates :merchant_name, presence: true, length: { maximum: 255 }, uniqueness: true
 

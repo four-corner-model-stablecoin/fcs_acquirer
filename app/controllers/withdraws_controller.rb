@@ -74,8 +74,9 @@ class WithdrawsController < ApplicationController
     burn_txid = body['burn_txid']
 
     amount = request.amount
-
     merchant = request.merchant
+
+    # 加盟店ウォレットを操作
     wallet = merchant.wallet
     wallet.update!(balance: wallet.balance - amount)
     wallet_transaction = WalletTransaction.create(
@@ -85,6 +86,7 @@ class WithdrawsController < ApplicationController
       transaction_time: Time.current
     )
 
+    # 加盟店現金口座を操作
     account = merchant.account
     account.update!(balance: account.balance + amount)
     account_transaction = AccountTransaction.create(
@@ -94,6 +96,7 @@ class WithdrawsController < ApplicationController
       transaction_time: Time.current
     )
 
+    # ステーブルコイン償還履歴作成
     withdrawal_transaction = WithdrawalTransaction.create(
       wallet_transaction:,
       account_transaction:,

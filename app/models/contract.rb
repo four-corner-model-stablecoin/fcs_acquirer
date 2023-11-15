@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# ブランドとの契約を管理するモデル
+# 現状使い道がないので仮
 class Contract < ApplicationRecord
   belongs_to :brand_did, class_name: 'Did', foreign_key: 'brand_did_id'
   belongs_to :acquirer_did, class_name: 'Did', foreign_key: 'acquirer_did_id'

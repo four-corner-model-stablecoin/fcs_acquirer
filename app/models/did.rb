@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# DIDモデル
 class Did < ApplicationRecord
   validates :short_form, presence: true
 
