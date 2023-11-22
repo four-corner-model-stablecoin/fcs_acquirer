@@ -98,9 +98,10 @@ module Api
       )
 
       # ステーブルコイン償還履歴作成
-      withdrawal_transaction = WithdrawalTransaction.create(
+      withdrawal_transaction = WithdrawalTransaction.create!(
         wallet_transaction:,
         account_transaction:,
+        amount:,
         merchant_to_brand_txid:,
         brand_to_issuer_txid:,
         burn_txid:,
@@ -109,7 +110,7 @@ module Api
 
       request.update!(withdrawal_transaction:, status: :completed)
 
-      render json: { merchant_to_brand_txid:, brand_to_issuer_txid:, burn_txid: }
+      render json: { request_id:, merchant_to_brand_txid:, brand_to_issuer_txid:, burn_txid: }
     end
   end
 end
