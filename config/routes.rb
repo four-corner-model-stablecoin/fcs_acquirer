@@ -13,6 +13,8 @@ Rails.application.routes.draw do
   resources :wallet_transactions, only: %i[index]
   resources :withdrawal_transactions, only: %i[index]
 
-  post 'withdraw/create', to: 'withdraws#create'
-  post 'withdraw/confirm', to: 'withdraws#confirm'
+  namespace :api do
+    post 'withdraw/create', to: 'withdraws#create'
+    post 'withdraw/confirm', to: 'withdraws#confirm'
+  end
 end
